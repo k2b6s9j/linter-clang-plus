@@ -1,11 +1,11 @@
-# linter-clang package
+# linter-clang-plus package
 
 This linter plugin for [Linter](https://github.com/AtomLinter/Linter) provides an interface to clang. It will be used with files that have the "C++", "C", "Objective-C" and "Objective-C++" syntax.
 
 ### Plugin installation
 Press ctrl and ',' or cmd and ',' , click on 'Packages', search 'linter clang', or:
 ```
-$ apm install linter-clang
+$ apm install linter-clang-plus
 ```
 
 ## Project-specific include paths
@@ -50,24 +50,4 @@ Please note that modifications should follow these coding guidelines:
 
 Thank you for helping out!
 
-## Other Available linters
-- [linter-php](https://atom.io/packages/linter-php), for PHP using `php -l`
-- [linter-phpcs](https://atom.io/packages/linter-phpcs), for PHP, using `phpc`
-- [linter-phpmd](https://atom.io/packages/linter-phpmd), for PHP, using `phpmd`
-- [linter-pylint](https://atom.io/packages/linter-pylint), for Python, using `pylint`
-- [linter-javac](https://atom.io/packages/linter-javac), for Java, using `javac`
-- [linter-jshint](https://atom.io/packages/linter-jshint), for JavaScript and JSON, using `jshint`
-- [linter-jscs](https://atom.io/packages/linter-jscs), for JavaScript, using `jscs`
-- [linter-scss-lint](https://atom.io/packages/linter-scss-lint), for SASS/SCSS, using `scss-lint`
-- [linter-coffeelint](https://atom.io/packages/linter-coffeelint), for CoffeeScript, using `coffeelint`
-- [linter-csslint](https://atom.io/packages/linter-csslint), for CSS, using `csslint`
-- [linter-rubocop](https://atom.io/packages/linter-rubocop), for Ruby, using `rubocop`
-- [linter-tslint](https://atom.io/packages/linter-tslint), for Typescript, using `tslint`
-- [linter-xmllint](https://atom.io/packages/linter-xmllint), for XML, using `xmllint`
-- [linter-shellcheck](https://atom.io/packages/linter-shellcheck), for Bash, using `shellcheck`
-- [linter-scalac](https://atom.io/packages/linter-scalac), for Scala, using `scalac`
-
 Check out [AtomLinter](https://github.com/AtomLinter)!
-
-## Donation
-[![Share the love!](https://chewbacco-stuff.s3.amazonaws.com/donate.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8)

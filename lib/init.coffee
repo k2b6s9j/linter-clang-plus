@@ -29,4 +29,4 @@ module.exports =
       default: false
 
   activate: ->
-    console.log 'activate linter-clang' if atom.inDevMode()
+    console.log 'activate linter-clang-plus' if atom.inDevMode()
