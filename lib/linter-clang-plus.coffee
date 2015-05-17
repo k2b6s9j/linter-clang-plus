@@ -84,57 +84,6 @@ class LinterClang extends Linter
 
     includePaths @cwd, pathArray
 
-    # this function searches a directory for include path files
-    searchDirectory = (base) =>
-      try
-        list = fs.readdirSync base
-      catch err
-        return
-
-      for filename in list
-        filenameResolved = path.resolve(base, filename)
-        try
-          stat = fs.statSync filenameResolved
-        catch err
-          continue
-
-        if stat.isDirectory()
-          searchDirectory filenameResolved
-        if stat.isFile() and filename is '.linter-clang-includes'
-          console.log "linter-clang: found #{filenameResolved}" if atom.inDevMode()
-          content = fs.readFileSync filenameResolved, 'utf8'
-          ###
-            we have to parse it to enable using quotes and space.
-            we treat it as if every line had quotes around it
-            example:
-              $ cat .linter-clang-includes
-               path/to/bla
-               path/two/bla with spaces
-             -> results in:
-               content = '"path/to/bla" "path/two/bla with spaces"'
-             this will be taken by parseSpaceString appropriatly to:
-               content = ['path/to/bla', 'path/two/bla with spaces']
-             instead of
-               content = ['path/to/bla', 'path/two/bla', 'with', 'spaces'] # WRONG!!!
-          ###
-          # only use line which contain stuff
-          contentLines = (line for line in content.split "\n" when line)
-          # Glue them together using quotes
-          content = "\"" + (contentLines.join "\" \"") + "\""
-          contentSplit = splitSpaceString content
-          # dont give base as base parameter but the path of the resolved filename!!!
-          # so that all paths inside .linter-clang-includes will be relative to the file, not the project path!
-          includePaths (path.dirname filenameResolved), contentSplit
-        if stat.isFile() and filename is '.linter-clang-flags'
-          console.log "linter-clang: found #{filenameResolved}" if atom.inDevMode()
-          content = fs.readFileSync filenameResolved, 'utf8'
-          content = (content.split "\n").join " "
-          contentSplit = splitSpaceString content
-          contentExpanded = expandMacros flag for flag in contentSplit
-          args.push contentExpanded
-
-    searchDirectory projectPath
-
     # Add file path as last argument
     args.push filePath
 
