@@ -65,20 +65,6 @@ class LinterClang extends Linter
     args.push '-w' if atom.config.get 'linter-clang.clangSuppressWarnings'
     args.push '--verbose' if verbose
 
-    expandMacros = (stringToExpand) =>
-      stringToExpand = stringToExpand.replace '%d', @cwd
-      stringToExpand = stringToExpand.replace '%p', projectPath
-      stringToExpand = stringToExpand.replace '%%', '%'
-      return stringToExpand
-
-    includePaths = (base, ipathArray) =>
-      for ipath in ipathArray
-        if ipath
-          pathExpanded = expandMacros(ipath)
-          pathResolved = path.resolve(base, pathExpanded)
-          console.log "linter-clang: including #{ipath}, which expanded to #{pathResolved}" if atom.inDevMode() and verbose
-          args.push "-I#{pathResolved}"
-
     pathArray =
       splitSpaceString atom.config.get 'linter-clang.clangIncludePaths'
 
@@ -92,9 +78,6 @@ class LinterClang extends Linter
     @regex = filePath.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") +
       ':(?<line>\\d+):(?<col>\\d+):(\{(?<lineStart>\\d+):(?<colStart>\\d+)\\-(?<lineEnd>\\d+):(?<colEnd>\\d+)\}.*:)? ' +
       '((?<error>(?:fatal )?error)|(?<warning>warning)): (?<message>.*)'
-
-    if atom.inDevMode()
-      console.log 'linter-clang: is node executable: ' + @isNodeExecutable
 
     # use BufferedNodeProcess if the linter is node executable
     if @isNodeExecutable
