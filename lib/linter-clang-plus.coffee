@@ -9,26 +9,14 @@ class LinterClang extends Linter
 
   # A string, list, tuple or callable that returns a string, list or tuple,
   # containing the command line (with arguments) used to lint.
-  @cmd: 'clang'
-  @includePaths: ['.']
-  @suppressWarnings: false
-  @defaultCFlags: '-Wall'
-  @defaultCppFlags: '-Wall'
-  @defaultObjCFlags: ''
-  @defaultObjCppFlags: ''
-  @errorLimit: 0
-  @verboseDebug: false
-  @liveLinting: false
   errorStream: 'stderr'
   linterName: 'clang'
 
-  constructor: (editor) ->
-    super(editor)
-    @editor = editor
-    @language = 'c++' if editor.getGrammar().name == 'C++'
-    @language = 'objective-c++' if editor.getGrammar().name == 'Objective-C++'
-    @language = 'c' if editor.getGrammar().name == 'C'
-    @language = 'objective-c' if editor.getGrammar().name == 'Objective-C'
+  constructor: (@editor) ->
+    @language = 'c++' if @editor.getGrammar().name == 'C++'
+    @language = 'objective-c++' if @editor.getGrammar().name == 'Objective-C++'
+    @language = 'c' if @editor.getGrammar().name == 'C'
+    @language = 'objective-c' if @editor.getGrammar().name == 'Objective-C'
 
     @listen = []
 
