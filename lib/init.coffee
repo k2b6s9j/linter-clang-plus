@@ -1,27 +1,27 @@
 module.exports =
   config:
-    clangCommand:
+    command:
       type: 'string'
       default: 'clang'
-    clangIncludePaths:
+    includePaths:
       type: 'string'
       default: '.'
-    clangSuppressWarnings:
+    suppressWarnings:
       type: 'boolean'
       default: false
-    clangDefaultCFlags:
+    defaultCFlags:
       type: 'string'
       default: '-Wall'
-    clangDefaultCppFlags:
+    defaultCppFlags:
       type: 'string'
       default: '-Wall -std=c++11'
-    clangDefaultObjCFlags:
+    defaultObjCFlags:
       type: 'string'
       default: ' '
-    clangDefaultObjCppFlags:
+    defaultObjCppFlags:
       type: 'string'
       default: ' '
-    clangErrorLimit:
+    errorLimit:
       type: 'integer'
       default: 0
     verboseDebug:
