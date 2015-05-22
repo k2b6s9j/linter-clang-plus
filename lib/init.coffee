@@ -4,8 +4,8 @@ module.exports =
       type: 'string'
       default: 'clang'
     includePaths:
-      type: 'string'
-      default: '.'
+      type: 'array'
+      default: ['.']
     suppressWarnings:
       type: 'boolean'
       default: false
@@ -25,6 +25,9 @@ module.exports =
       type: 'integer'
       default: 0
     verboseDebug:
+      type: 'boolean'
+      default: false
+    liveLinting:
       type: 'boolean'
       default: false
 

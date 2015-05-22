@@ -1,8 +1,6 @@
-{Range, Point} = require 'atom'
 linterPath = atom.packages.getLoadedPackage("linter").path
 Linter = require "#{linterPath}/lib/linter"
 path = require 'path'
-fs = require 'fs'
 
 class LinterClang extends Linter
   # The syntax that the linter handles. May be a string or
@@ -11,36 +9,56 @@ class LinterClang extends Linter
 
   # A string, list, tuple or callable that returns a string, list or tuple,
   # containing the command line (with arguments) used to lint.
-  @cmd: ''
+  @cmd: 'clang'
+  @includePaths: ['.']
+  @suppressWarnings: false
+  @defaultCFlags: '-Wall'
+  @defaultCppFlags: '-Wall'
+  @defaultObjCFlags: ''
+  @defaultObjCppFlags: ''
+  @errorLimit: 0
+  @verboseDebug: false
+  @liveLinting: false
   errorStream: 'stderr'
   linterName: 'clang'
 
-  constructor: (@editor) ->
-    @language = 'c++' if @editor.getGrammar().name == 'C++'
-    @language = 'objective-c++' if @editor.getGrammar().name == 'Objective-C++'
-    @language = 'c' if @editor.getGrammar().name == 'C'
-    @language = 'objective-c' if @editor.getGrammar().name == 'Objective-C'
+  constructor: (editor) ->
+    super(editor)
+    @editor = editor
+    @language = 'c++' if editor.getGrammar().name == 'C++'
+    @language = 'objective-c++' if editor.getGrammar().name == 'Objective-C++'
+    @language = 'c' if editor.getGrammar().name == 'C'
+    @language = 'objective-c' if editor.getGrammar().name == 'Objective-C'
 
-    @listen = atom.config.observe 'linter-clang-plus.command', (value) =>
+    @listen = []
+
+    @listen << atom.config.observe 'linter-clang-plus.command', (value) =>
       @cmd = value
-    atom.config.observe 'linter-clang-plus.includePaths', (value) =>
+    @listen << atom.config.observe 'linter-clang-plus.includePaths', (value) =>
       @includePaths = value
-    atom.config.observe 'linter-clang-plus.suppressWarnings', (value) =>
-      @suppressWarnings = value
-    atom.config.observe 'linter-clang-plus.defaultCFlags', (value) =>
-      @defaultCFlags = value
-    atom.config.observe 'linter-clang-plus.defaultCppFlags', (value) =>
-      @defaultCppFlags = value
-    atom.config.observe 'linter-clang-plus.defaultObjCFlags', (value) =>
-      @defaultObjCFlags = value
-    atom.config.observe 'linter-clang-plus.defaultObjCppFlags', (value) =>
-      @defaultObjCppFlags = value
-    atom.config.observe 'linter-clang-plus.errorLimit', (value) =>
+    @listen << atom.config.observe 'linter-clang-plus.suppressWarnings',
+      (value) =>
+        @suppressWarnings = value
+    @listen << atom.config.observe 'linter-clang-plus.defaultCFlags',
+      (value) =>
+        @defaultCFlags = value
+    @listen << atom.config.observe 'linter-clang-plus.defaultCppFlags',
+      (value) =>
+        @defaultCppFlags = value
+    @listen << atom.config.observe 'linter-clang-plus.defaultObjCFlags',
+      (value) =>
+        @defaultObjCFlags = value
+    @listen << atom.config.observe 'linter-clang-plus.defaultObjCppFlags',
+      (value) =>
+        @defaultObjCppFlags = value
+    @listen << atom.config.observe 'linter-clang-plus.errorLimit', (value) =>
       @errorLimit = value
-    atom.config.observe 'linter-clang-plus.verboseDebug', (value) =>
+    @listen << atom.config.observe 'linter-clang-plus.verboseDebug', (value) =>
       @verboseDebug = value
-
-    super(@editor)
+    @listen << atom.config.observe 'linter-clang-plus.liveLinting', (value) =>
+      @liveLinting = value
+    @listen << atom.config.observe 'linter-clang-plus.fileDetection', (value) =>
+      @fileDetection = value
 
   lintFile: (filePath, callback) ->
     @cmd = "#{@cmd} -fsyntax-only"
@@ -49,33 +67,31 @@ class LinterClang extends Linter
     @cmd = "#{@cmd} -fdiagnostics-print-source-range-info"
     @cmd = "#{@cmd} -fexceptions"
     @cmd = "#{@cmd} -x#{@language}"
-
     defaultFlags = switch @editor.getGrammar().name
       when 'C++' then @defaultCppFlags
       when 'Objective-C++' then @defaultObjCppFlags
       when 'C' then atom.config.get @defaultCFlags
       when 'Objective-C' then atom.config.get @defaultObjCFlags
-
     @cmd = "#{@cmd} -ferror-limit=#{@errorLimit}"
     @cmd = "#{@cmd} -w" if @suppressWarnings
-
+    if @liveLinting
+      file = (path.basename do @editor.getPath)
+    else
+      file = filePath
+    for include in @includePaths
+      @cmd = "#{@cmd} -I#{include}"
     # add file to regex to filter output to this file,
     # need to change filename a bit to fit into regex
     @regex = filePath.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") +
-      ':(?<line>\\d+):(?<col>\\d+):(\{(?<lineStart>\\d+):(?<colStart>\\d+)\\
-      -(?<lineEnd>\\d+):(?<colEnd>\\d+)\}.*:)? ((?<error>(?:fatal )?error)|
-      (?<warning>warning)): (?<message>.*)'
+      ':(?<line>\\d+):(?<col>\\d+):(\{(?<lineStart>\\d+):(?<colStart>\\d+)\\-(?<lineEnd>\\d+):(?<colEnd>\\d+)\}.*:)? ((?<error>(?:fatal )?error)|(?<warning>warning)): (?<message>.*)'
+    if @liveLinting
+      super(filePath, callback)
+    else
+      super(file, callback)
+    console.log "linter-clang: command = #{@cmd}" if atom.inDevMode()
 
-    if atom.inDevMode()
-      console.log "linter-clang: command = #{@cmd}"
-
-    super(filePath, callback)
-
-  createMessage: (match) ->
-    # message might be empty, we have to supply a value
-    if match and match.type == 'parse' and not match.message
-      message = 'error'
-
-    super(match)
+  destroy: ->
+    for dispose in @listen
+      dispose.dispose()
 
 module.exports = LinterClang
