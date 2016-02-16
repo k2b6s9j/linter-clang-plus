@@ -3,7 +3,7 @@
   "linter-package": true,
   "activationCommands": [],
   "main": "./lib/init",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lint using clang",
   "repository": "https://github.com/kepler0/linter-clang-plus",
   "license": "MIT",
